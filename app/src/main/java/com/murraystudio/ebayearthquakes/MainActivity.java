@@ -15,6 +15,7 @@ import android.widget.ListView;
 
 import com.murraystudio.ebayearthquakes.Adapter.EarthquakeAdapter;
 import com.murraystudio.ebayearthquakes.Fragments.EarthquakeTaskFragment;
+import com.murraystudio.ebayearthquakes.Fragments.GeoCodeTaskFragment;
 import com.murraystudio.ebayearthquakes.Model.Earthquake;
 
 import org.json.JSONArray;
@@ -22,7 +23,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements EarthquakeTaskFragment.AsyncTaskCallbacks {
+import static android.R.attr.value;
+
+public class MainActivity extends AppCompatActivity implements EarthquakeTaskFragment.AsyncTaskCallbacks, GeoCodeTaskFragment.GeoCodeAsyncTaskCallbacks {
 
     private ListView mListView;
 
@@ -30,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
     private EarthquakeTaskFragment mEarthquakeTaskFragment;
 
     private ArrayList<Earthquake> mDataSourceMainActivity;
+
+    private EarthquakeAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +52,29 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
             }
         });
 
+        mDataSourceMainActivity = new ArrayList<Earthquake>();
+
+        if (savedInstanceState != null) {
+            float[] magValues = savedInstanceState.getFloatArray("magKey");
+            float[] latValues = savedInstanceState.getFloatArray("latKey");
+            float[] lngValues = savedInstanceState.getFloatArray("lngKey");
+            String[] dateValues = savedInstanceState.getStringArray("dateKey");
+            for(int i = 0; i < magValues.length; i++){
+                Earthquake earthquake = new Earthquake();
+
+                earthquake.setDate(dateValues[i]);
+                earthquake.setMagnitude(magValues[i]);
+                earthquake.setLng(lngValues[i]);
+                earthquake.setLat(latValues[i]);
+
+                if(earthquake.getDate() != null) {
+                    mDataSourceMainActivity.add(earthquake);
+                }
+            }
+
+
+        }
+
         FragmentManager fm = getFragmentManager();
         mEarthquakeTaskFragment = (EarthquakeTaskFragment) fm.findFragmentByTag(TAG_EARTHQUAKE_TASK_FRAGMENT);
 
@@ -62,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
         //allows collapsing toolbar to function when scrolling
         mListView.setNestedScrollingEnabled(true);
 
-        EarthquakeAdapter adapter = new EarthquakeAdapter(this, mDataSourceMainActivity);
+        adapter = new EarthquakeAdapter(this, mDataSourceMainActivity);
         mListView.setAdapter(adapter);
 
 
@@ -89,28 +117,36 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
         return super.onOptionsItemSelected(item);
     }
 
-    // The four methods below are called by the EarthquakeTaskFragment when new
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        float[] magValues = new float[mDataSourceMainActivity.size()];
+        float[] latValues = new float[mDataSourceMainActivity.size()];
+        float[] lngValues = new float[mDataSourceMainActivity.size()];
+        String[] dateValues = new String[mDataSourceMainActivity.size()];
+
+
+        for(int i = 0; i < mDataSourceMainActivity.size(); i++) {
+            magValues[i] = mDataSourceMainActivity.get(i).getMagnitude();
+            latValues[i] = mDataSourceMainActivity.get(i).getLat();
+            lngValues[i] = mDataSourceMainActivity.get(i).getLng();
+            dateValues[i] = mDataSourceMainActivity.get(i).getDate();
+        }
+
+        outState.putFloatArray("magKey", magValues);
+        outState.putFloatArray("latKey", latValues);
+        outState.putFloatArray("lngKey", lngValues);
+        outState.putStringArray("dateKey", dateValues);
+
+    }
+
+    // method below are called by the EarthquakeTaskFragment when new
     // progress updates or results are available. The MainActivity
     // should respond by updating its UI to indicate the change.
 
     @Override
-    public void onPreExecute() {
-
-    }
-
-    @Override
-    public void onProgressUpdate(int percent) {
-
-    }
-
-    @Override
-    public void onCancelled() {
-
-    }
-
-    @Override
     public void onPostExecute(String rawData) {
-        mDataSourceMainActivity = new ArrayList<Earthquake>();
         String raw = rawData;
         try{
             JSONObject parent = new JSONObject(raw);
@@ -127,6 +163,11 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
                 earthquake.setLng((float) cur.optDouble("lng"));
                 earthquake.setLat((float) cur.optDouble("lat"));
 
+
+                Bundle args = new Bundle();
+                args.putLong("key", value);
+                yourFragment.setArguments(args);
+
                 if(earthquake.getDate() != null) {
                     mDataSourceMainActivity.add(earthquake);
                 }
@@ -139,6 +180,11 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
         }catch(Exception e){
             Log.e("fetchPosts()",e.toString());
         }
+
+    }
+
+    @Override
+    public void onPostExecuteGeoCode(String place) {
 
     }
 }

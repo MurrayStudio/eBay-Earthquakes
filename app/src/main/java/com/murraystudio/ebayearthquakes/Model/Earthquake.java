@@ -12,6 +12,7 @@ public class Earthquake {
     private float lng;
     private float magnitude;
     private float lat;
+    private String place;
 
 
     public String getDate(){
@@ -34,6 +35,10 @@ public class Earthquake {
         return lat;
     }
 
+    public String getPlace(){
+        return place;
+    }
+
 
     public void setDate(String date){
         this.date = date;
@@ -54,5 +59,10 @@ public class Earthquake {
     public void setLat(float lat){
         this.lat = lat;
     }
+
+    public void setPlace(String place){
+        this.place = place;
+    }
+
 
 }

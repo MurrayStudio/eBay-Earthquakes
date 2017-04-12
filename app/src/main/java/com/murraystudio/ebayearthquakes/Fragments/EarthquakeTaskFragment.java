@@ -24,9 +24,6 @@ public class EarthquakeTaskFragment extends Fragment {
      * task's progress and results back to the Activity.
      */
     public interface AsyncTaskCallbacks {
-        void onPreExecute();
-        void onProgressUpdate(int percent);
-        void onCancelled();
         void onPostExecute(String rawData);
     }
 
@@ -99,14 +96,6 @@ public class EarthquakeTaskFragment extends Fragment {
             return hcon;
         }
 
-
-        @Override
-        protected void onPreExecute() {
-            if (mCallbacks != null) {
-                mCallbacks.onPreExecute();
-            }
-        }
-
         /**
          * Note that we do NOT call the callback object's methods
          * directly from the background thread, as this could result
@@ -141,13 +130,6 @@ public class EarthquakeTaskFragment extends Fragment {
         @Override
         protected void onProgressUpdate(Void... values) {
             super.onProgressUpdate(values);
-        }
-
-        @Override
-        protected void onCancelled() {
-            if (mCallbacks != null) {
-                mCallbacks.onCancelled();
-            }
         }
 
         @Override

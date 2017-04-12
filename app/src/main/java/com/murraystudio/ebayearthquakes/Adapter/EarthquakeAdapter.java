@@ -54,14 +54,22 @@ public class EarthquakeAdapter extends BaseAdapter {
             view = inflater.inflate(R.layout.earthquake_view, viewGroup, false);
         }
 
-        if(mDataSource != null) {
+        if(mDataSource.size() > 0) {
 
-            TextView magnitudeText = (TextView) view.findViewById(com.murraystudio.ebayearthquakes.R.id.Mag);
+            TextView magnitudeText = (TextView) view.findViewById(R.id.Mag);
+            TextView latLngText = (TextView) view.findViewById(R.id.lat_long);
+            TextView dateText = (TextView) view.findViewById(R.id.date);
+            TextView place = (TextView) view.findViewById(R.id.place);
+
             magnitudeText.setText(Float.toString(mDataSource.get(i).getMagnitude()));
-            //magnitudeText.setText(Float.toString(mDataSource.get(i).getMagnitude()));
+            latLngText.setText(Float.toString(mDataSource.get(i).getLat()) + ", " + Float.toString(mDataSource.get(i).getLng()));
+            dateText.setText(mDataSource.get(i).getDate());
+
+
         }
 
 
         return view;
     }
+
 }
