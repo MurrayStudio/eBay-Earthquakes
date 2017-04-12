@@ -23,14 +23,14 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import static android.R.attr.value;
-
 public class MainActivity extends AppCompatActivity implements EarthquakeTaskFragment.AsyncTaskCallbacks, GeoCodeTaskFragment.GeoCodeAsyncTaskCallbacks {
 
     private ListView mListView;
 
     private static final String TAG_EARTHQUAKE_TASK_FRAGMENT = "earthquake_task_fragment";
+    private static final String TAG_GeoCode_TASK_FRAGMENT = "geo_code_task_fragment";
     private EarthquakeTaskFragment mEarthquakeTaskFragment;
+    private GeoCodeTaskFragment mGeoCodeTaskFragment;
 
     private ArrayList<Earthquake> mDataSourceMainActivity;
 
@@ -148,6 +148,8 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
     @Override
     public void onPostExecute(String rawData) {
         String raw = rawData;
+
+        FragmentManager fm = getFragmentManager();
         try{
             JSONObject parent = new JSONObject(raw);
             JSONArray jsonData = parent.getJSONArray("earthquakes");
@@ -163,10 +165,21 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
                 earthquake.setLng((float) cur.optDouble("lng"));
                 earthquake.setLat((float) cur.optDouble("lat"));
 
+                mGeoCodeTaskFragment = (GeoCodeTaskFragment) fm.findFragmentByTag(TAG_GeoCode_TASK_FRAGMENT);
 
-                Bundle args = new Bundle();
-                args.putLong("key", value);
-                yourFragment.setArguments(args);
+                // If the Fragment is non-null, then it is currently being
+                // retained across a configuration change.
+                if (mGeoCodeTaskFragment == null) {
+                    mGeoCodeTaskFragment = new GeoCodeTaskFragment();
+
+                    Bundle args = new Bundle();
+                    args.putFloat("latKey", (float) cur.optDouble("lat"));
+                    args.putFloat("lngKey", (float) cur.optDouble("lng"));
+                    args.putInt("IDKey", i);
+                    mGeoCodeTaskFragment.setArguments(args);
+
+                    fm.beginTransaction().add(mGeoCodeTaskFragment, TAG_GeoCode_TASK_FRAGMENT).commit();
+                }
 
                 if(earthquake.getDate() != null) {
                     mDataSourceMainActivity.add(earthquake);
@@ -185,6 +198,15 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
 
     @Override
     public void onPostExecuteGeoCode(String place) {
+        if(place != null) {
+            int placeNameIndex = place.indexOf(";");
+            String placeName = place.substring(0, placeNameIndex);
+            String placeID = place.substring(placeNameIndex + 1);
+            int placeIDInt = Integer.parseInt(placeID);
 
+            mDataSourceMainActivity.get(placeIDInt).setPlace(placeName);
+
+            ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
+        }
     }
 }

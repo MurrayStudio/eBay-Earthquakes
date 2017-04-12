@@ -28,7 +28,6 @@ public class GeoCodeTaskFragment extends Fragment {
     private GeoCodeAsyncTaskCallbacks mCallbacks;
     private GeoCodePullTask mTask;
 
-    private static final String JSON_URL = "http://api.geonames.org/earthquakesJSON?formatted=true&north=44.1&south=-9.9&east=-22.4&west=55.2&username=mkoppelman";
 
     /**
      * Hold a reference to the parent Activity so we can report the
@@ -55,9 +54,10 @@ public class GeoCodeTaskFragment extends Fragment {
 
         float lat = getArguments().getFloat("latKey");
         float lng = getArguments().getFloat("lngKey");
+        int ID = getArguments().getInt("IDKey");
 
         // Create and execute the background task.
-        mTask = new GeoCodePullTask(lat, lng);
+        mTask = new GeoCodePullTask(lat, lng, ID);
         mTask.execute();
     }
 
@@ -83,10 +83,12 @@ public class GeoCodeTaskFragment extends Fragment {
 
         private float lat;
         private float lng;
+        private int ID;
 
-        public GeoCodePullTask(float lat, float lng){
+        public GeoCodePullTask(float lat, float lng, int ID){
             this.lat = lat;
             this.lng = lng;
+            this.ID = ID;
         }
 
         private String getGeoLocation(float lat, float lng) throws IOException {
@@ -107,7 +109,7 @@ public class GeoCodeTaskFragment extends Fragment {
                 String postalCode = addresses.get(0).getPostalCode();
                 String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
 
-                return  city + " " + country;
+                return  country + " ;" + ID;
             }
             else {
                 return null;

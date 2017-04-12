@@ -13,6 +13,8 @@ import com.murraystudio.ebayearthquakes.R;
 
 import java.util.ArrayList;
 
+import static com.murraystudio.ebayearthquakes.R.id.place;
+
 /**
  * Created by sushi_000 on 4/11/2017.
  */
@@ -59,12 +61,18 @@ public class EarthquakeAdapter extends BaseAdapter {
             TextView magnitudeText = (TextView) view.findViewById(R.id.Mag);
             TextView latLngText = (TextView) view.findViewById(R.id.lat_long);
             TextView dateText = (TextView) view.findViewById(R.id.date);
-            TextView place = (TextView) view.findViewById(R.id.place);
+            TextView placeText = (TextView) view.findViewById(place);
 
             magnitudeText.setText(Float.toString(mDataSource.get(i).getMagnitude()));
             latLngText.setText(Float.toString(mDataSource.get(i).getLat()) + ", " + Float.toString(mDataSource.get(i).getLng()));
             dateText.setText(mDataSource.get(i).getDate());
 
+            if(mDataSource.get(i).getPlace() != null){
+                placeText.setText(mDataSource.get(i).getPlace());
+            }
+            else{
+                placeText.setText("Unknown Location");
+            }
 
         }
 
