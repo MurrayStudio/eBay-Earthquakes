@@ -10,10 +10,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 import com.murraystudio.ebayearthquakes.Adapter.EarthquakeAdapter;
+import com.murraystudio.ebayearthquakes.Fragments.DetailedEarthquakeFragment;
 import com.murraystudio.ebayearthquakes.Fragments.EarthquakeTaskFragment;
 import com.murraystudio.ebayearthquakes.Fragments.GeoCodeTaskFragment;
 import com.murraystudio.ebayearthquakes.Model.Earthquake;
@@ -28,9 +30,11 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
     private ListView mListView;
 
     private static final String TAG_EARTHQUAKE_TASK_FRAGMENT = "earthquake_task_fragment";
-    private static final String TAG_GeoCode_TASK_FRAGMENT = "geo_code_task_fragment";
+    private static final String TAG_GEOCODE_TASK_FRAGMENT = "geo_code_task_fragment";
+    private static final String TAG_DETAILED_EARTHQUAKE_FRAGMENT = "detailed_earthquake_fragment";
     private EarthquakeTaskFragment mEarthquakeTaskFragment;
     private GeoCodeTaskFragment mGeoCodeTaskFragment;
+    private DetailedEarthquakeFragment mDetailedEarthquakeFragment;
 
     private ArrayList<Earthquake> mDataSourceMainActivity;
 
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
             float[] latValues = savedInstanceState.getFloatArray("latKey");
             float[] lngValues = savedInstanceState.getFloatArray("lngKey");
             String[] dateValues = savedInstanceState.getStringArray("dateKey");
+            String[] placeValues = savedInstanceState.getStringArray("placeKey");
             for(int i = 0; i < magValues.length; i++){
                 Earthquake earthquake = new Earthquake();
 
@@ -66,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
                 earthquake.setMagnitude(magValues[i]);
                 earthquake.setLng(lngValues[i]);
                 earthquake.setLat(latValues[i]);
+                earthquake.setPlace(placeValues[i]);
 
                 if(earthquake.getDate() != null) {
                     mDataSourceMainActivity.add(earthquake);
@@ -92,6 +98,32 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
 
         adapter = new EarthquakeAdapter(this, mDataSourceMainActivity);
         mListView.setAdapter(adapter);
+
+
+        AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                FragmentManager fm = getFragmentManager();
+                //mDetailedEarthquakeFragment = (DetailedEarthquakeFragment) fm.findFragmentByTag(TAG_DETAILED_EARTHQUAKE_FRAGMENT);
+
+                //if (mDetailedEarthquakeFragment == null) {
+                    mDetailedEarthquakeFragment = new DetailedEarthquakeFragment();
+
+                    Bundle args = new Bundle();
+                    args.putFloat("latKey", mDataSourceMainActivity.get(i).getLat());
+                    args.putFloat("lngKey", mDataSourceMainActivity.get(i).getLng());
+                    args.putFloat("magKey", mDataSourceMainActivity.get(i).getMagnitude());
+                    args.putString("dateKey", mDataSourceMainActivity.get(i).getDate());
+                    args.putString("placeKey", mDataSourceMainActivity.get(i).getPlace());
+                    mDetailedEarthquakeFragment.setArguments(args);
+
+                    fm.beginTransaction().replace(R.id.fragment_container, mDetailedEarthquakeFragment).addToBackStack(null).commit();
+                    mListView.setVisibility(View.GONE);
+                //}
+            }
+        };
+
+        mListView.setOnItemClickListener (listener);
 
 
     }
@@ -125,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
         float[] latValues = new float[mDataSourceMainActivity.size()];
         float[] lngValues = new float[mDataSourceMainActivity.size()];
         String[] dateValues = new String[mDataSourceMainActivity.size()];
+        String[] placeValues = new String[mDataSourceMainActivity.size()];
 
 
         for(int i = 0; i < mDataSourceMainActivity.size(); i++) {
@@ -132,12 +165,14 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
             latValues[i] = mDataSourceMainActivity.get(i).getLat();
             lngValues[i] = mDataSourceMainActivity.get(i).getLng();
             dateValues[i] = mDataSourceMainActivity.get(i).getDate();
+            placeValues[i] = mDataSourceMainActivity.get(i).getPlace();
         }
 
         outState.putFloatArray("magKey", magValues);
         outState.putFloatArray("latKey", latValues);
         outState.putFloatArray("lngKey", lngValues);
         outState.putStringArray("dateKey", dateValues);
+        outState.putStringArray("placeKey", placeValues);
 
     }
 
@@ -165,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
                 earthquake.setLng((float) cur.optDouble("lng"));
                 earthquake.setLat((float) cur.optDouble("lat"));
 
-                mGeoCodeTaskFragment = (GeoCodeTaskFragment) fm.findFragmentByTag(TAG_GeoCode_TASK_FRAGMENT);
+                mGeoCodeTaskFragment = (GeoCodeTaskFragment) fm.findFragmentByTag(TAG_GEOCODE_TASK_FRAGMENT);
 
                 // If the Fragment is non-null, then it is currently being
                 // retained across a configuration change.
@@ -178,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
                     args.putInt("IDKey", i);
                     mGeoCodeTaskFragment.setArguments(args);
 
-                    fm.beginTransaction().add(mGeoCodeTaskFragment, TAG_GeoCode_TASK_FRAGMENT).commit();
+                    fm.beginTransaction().add(mGeoCodeTaskFragment, TAG_GEOCODE_TASK_FRAGMENT).commit();
                 }
 
                 if(earthquake.getDate() != null) {
