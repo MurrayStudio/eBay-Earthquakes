@@ -1,10 +1,12 @@
 package com.murraystudio.ebayearthquakes.Adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.TextView;
 
 import com.murraystudio.ebayearthquakes.Model.Earthquake;
 import com.murraystudio.ebayearthquakes.R;
@@ -44,9 +46,22 @@ public class EarthquakeAdapter extends BaseAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        // Get view for row item
-        View rowView = mInflater.inflate(R.layout.earthquake_view, viewGroup, false);
 
-        return rowView;
+        // Get view for row item
+        if(view==null){
+            // inflate the layout
+            LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
+            view = inflater.inflate(R.layout.earthquake_view, viewGroup, false);
+        }
+
+        if(mDataSource != null) {
+
+            TextView magnitudeText = (TextView) view.findViewById(com.murraystudio.ebayearthquakes.R.id.Mag);
+            magnitudeText.setText(Float.toString(mDataSource.get(i).getMagnitude()));
+            //magnitudeText.setText(Float.toString(mDataSource.get(i).getMagnitude()));
+        }
+
+
+        return view;
     }
 }

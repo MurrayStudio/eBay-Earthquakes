@@ -7,30 +7,52 @@ package com.murraystudio.ebayearthquakes.Model;
  */
 
 public class Earthquake {
-    String date;
-    float depth;
-    float lng;
-    float magnitude;
-    float lat;
+    private String date;
+    private float depth;
+    private float lng;
+    private float magnitude;
+    private float lat;
 
 
-    String getDate(){
+    public String getDate(){
         return date;
     }
 
-    float getdepth(){
+    public float getdepth(){
         return depth;
     }
 
-    float getLng(){
+    public float getLng(){
         return lng;
     }
 
-    float getMagnitude(){
+    public float getMagnitude(){
         return magnitude;
     }
 
-    float getLat(){
+    public float getLat(){
         return lat;
     }
+
+
+    public void setDate(String date){
+        this.date = date;
+    }
+
+    public void setdepth(float depth){
+        this.depth = depth;
+    }
+
+    public void setLng(float lng){
+        this.lng = lng;
+    }
+
+    public void setMagnitude(float magnitude){
+        this.magnitude = magnitude;
+    }
+
+    public void setLat(float lat){
+        this.lat = lat;
+    }
+
 }
