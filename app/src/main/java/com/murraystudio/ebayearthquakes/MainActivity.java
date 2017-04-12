@@ -10,12 +10,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
 
-import com.murraystudio.ebayearthquakes.Adapter.EarthquakeAdapter;
 import com.murraystudio.ebayearthquakes.Fragments.DetailedEarthquakeFragment;
+import com.murraystudio.ebayearthquakes.Fragments.EarthquakeListFragment;
 import com.murraystudio.ebayearthquakes.Fragments.EarthquakeTaskFragment;
 import com.murraystudio.ebayearthquakes.Fragments.GeoCodeTaskFragment;
 import com.murraystudio.ebayearthquakes.Model.Earthquake;
@@ -27,18 +24,19 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements EarthquakeTaskFragment.AsyncTaskCallbacks, GeoCodeTaskFragment.GeoCodeAsyncTaskCallbacks {
 
-    private ListView mListView;
+    public static final String TAG_EARTHQUAKE_TASK_FRAGMENT = "earthquake_task_fragment";
+    public static final String TAG_GEOCODE_TASK_FRAGMENT = "geo_code_task_fragment";
+    public static final String TAG_DETAILED_EARTHQUAKE_FRAGMENT = "detailed_earthquake_fragment";
+    public static final String TAG__EARTHQUAKE_LIST_FRAGMENT = "_earthquake_list_fragment";
 
-    private static final String TAG_EARTHQUAKE_TASK_FRAGMENT = "earthquake_task_fragment";
-    private static final String TAG_GEOCODE_TASK_FRAGMENT = "geo_code_task_fragment";
-    private static final String TAG_DETAILED_EARTHQUAKE_FRAGMENT = "detailed_earthquake_fragment";
     private EarthquakeTaskFragment mEarthquakeTaskFragment;
     private GeoCodeTaskFragment mGeoCodeTaskFragment;
     private DetailedEarthquakeFragment mDetailedEarthquakeFragment;
+    private EarthquakeListFragment mEarthquakeListFragment;
 
     private ArrayList<Earthquake> mDataSourceMainActivity;
 
-    private EarthquakeAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
 
         FragmentManager fm = getFragmentManager();
         mEarthquakeTaskFragment = (EarthquakeTaskFragment) fm.findFragmentByTag(TAG_EARTHQUAKE_TASK_FRAGMENT);
+        mEarthquakeListFragment = (EarthquakeListFragment) fm.findFragmentByTag(TAG__EARTHQUAKE_LIST_FRAGMENT);
 
         // If the Fragment is non-null, then it is currently being
         // retained across a configuration change.
@@ -90,40 +89,14 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
             mEarthquakeTaskFragment = new EarthquakeTaskFragment();
             fm.beginTransaction().add(mEarthquakeTaskFragment, TAG_EARTHQUAKE_TASK_FRAGMENT).commit();
         }
+        if (mEarthquakeListFragment == null) {
+            mEarthquakeListFragment = new EarthquakeListFragment();
+            fm.beginTransaction().add(R.id.fragment_container, mEarthquakeListFragment, TAG__EARTHQUAKE_LIST_FRAGMENT).commit();
+        }
+        else{
 
-
-        mListView = (ListView) findViewById(R.id.earthquake_list_view);
-        //allows collapsing toolbar to function when scrolling
-        mListView.setNestedScrollingEnabled(true);
-
-        adapter = new EarthquakeAdapter(this, mDataSourceMainActivity);
-        mListView.setAdapter(adapter);
-
-
-        AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener(){
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                FragmentManager fm = getFragmentManager();
-                //mDetailedEarthquakeFragment = (DetailedEarthquakeFragment) fm.findFragmentByTag(TAG_DETAILED_EARTHQUAKE_FRAGMENT);
-
-                //if (mDetailedEarthquakeFragment == null) {
-                    mDetailedEarthquakeFragment = new DetailedEarthquakeFragment();
-
-                    Bundle args = new Bundle();
-                    args.putFloat("latKey", mDataSourceMainActivity.get(i).getLat());
-                    args.putFloat("lngKey", mDataSourceMainActivity.get(i).getLng());
-                    args.putFloat("magKey", mDataSourceMainActivity.get(i).getMagnitude());
-                    args.putString("dateKey", mDataSourceMainActivity.get(i).getDate());
-                    args.putString("placeKey", mDataSourceMainActivity.get(i).getPlace());
-                    mDetailedEarthquakeFragment.setArguments(args);
-
-                    fm.beginTransaction().replace(R.id.fragment_container, mDetailedEarthquakeFragment).addToBackStack(null).commit();
-                    mListView.setVisibility(View.GONE);
-                //}
-            }
-        };
-
-        mListView.setOnItemClickListener (listener);
+            mEarthquakeListFragment.updateAdapter(mDataSourceMainActivity);
+        }
 
 
     }
@@ -222,7 +195,8 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
             }
 
 
-            ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
+            //update listview with new data
+            mEarthquakeListFragment.updateAdapter(mDataSourceMainActivity);
 
 
         }catch(Exception e){
@@ -241,7 +215,24 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
 
             mDataSourceMainActivity.get(placeIDInt).setPlace(placeName);
 
-            ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
+            //update listview with new data
+            mEarthquakeListFragment.updateAdapter(mDataSourceMainActivity);
         }
+    }
+
+    public void earthQuakeListOnClick(int position){
+                        FragmentManager fm = getFragmentManager();
+
+                mDetailedEarthquakeFragment = new DetailedEarthquakeFragment();
+
+                Bundle args = new Bundle();
+                args.putFloat("latKey", mDataSourceMainActivity.get(position).getLat());
+                args.putFloat("lngKey", mDataSourceMainActivity.get(position).getLng());
+                args.putFloat("magKey", mDataSourceMainActivity.get(position).getMagnitude());
+                args.putString("dateKey", mDataSourceMainActivity.get(position).getDate());
+                args.putString("placeKey", mDataSourceMainActivity.get(position).getPlace());
+                mDetailedEarthquakeFragment.setArguments(args);
+
+                fm.beginTransaction().replace(R.id.fragment_container, mDetailedEarthquakeFragment).addToBackStack(null).commit();
     }
 }
