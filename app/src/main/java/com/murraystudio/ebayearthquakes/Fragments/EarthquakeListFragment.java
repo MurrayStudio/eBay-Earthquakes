@@ -3,7 +3,6 @@ package com.murraystudio.ebayearthquakes.Fragments;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +17,11 @@ import com.murraystudio.ebayearthquakes.R;
 
 import java.util.ArrayList;
 
-/**
- * Created by sushi_000 on 4/12/2017.
+/*
+ * Author: Shamus Murray
+ *
+ * Fragment that handles the listview UI of all earthquake objects
  */
-
 public class EarthquakeListFragment extends Fragment {
 
     private ArrayList<Earthquake> mDataSourceMainActivity;
@@ -50,16 +50,12 @@ public class EarthquakeListFragment extends Fragment {
 
         //allows collapsing toolbar to function when scrolling
         mListView.setNestedScrollingEnabled(true);
-
         mListView.setAdapter(adapter);
-
-
 
         AdapterView.OnItemClickListener listener = new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                Log.i("Click", Integer.toString(i));
+                //callback to MainActivity
                 ((MainActivity)getActivity()).earthQuakeListOnClick(i);
             }
         };
@@ -70,6 +66,8 @@ public class EarthquakeListFragment extends Fragment {
         return rootView;
     }
 
+    //any updates to our earthquake objects from MainActivity pass through here
+    //and the adapter for listview is notified of the dataset change.
     public void updateAdapter(ArrayList<Earthquake> mDataSourceMainActivity){
         this.mDataSourceMainActivity.clear();
         this.mDataSourceMainActivity.addAll(mDataSourceMainActivity);

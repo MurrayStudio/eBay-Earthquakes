@@ -3,9 +3,8 @@ package com.murraystudio.ebayearthquakes.Model;
 /**
  * Author: Shamus Murray
  *
- * This class holds the data of the JSON team member.
+ * This class holds the data of the JSON Earthquake.
  */
-
 public class Earthquake {
     private String date;
     private float depth;

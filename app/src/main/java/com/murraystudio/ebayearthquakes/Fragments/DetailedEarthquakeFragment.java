@@ -18,16 +18,16 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.murraystudio.ebayearthquakes.R;
 
-/**
- * Created by sushi_000 on 4/12/2017.
+/*
+ * Author: Shamus Murray
+ *
+ * Fragment handles the more detailed view of earthquake information (including a mapview)
  */
-
 public class DetailedEarthquakeFragment extends Fragment {
 
     private float lat;
     private float lng;
     private float magnitude;
-    private String place;
     private String date;
     private float depth;
 
@@ -43,7 +43,6 @@ public class DetailedEarthquakeFragment extends Fragment {
         lat = getArguments().getFloat("latKey");
         lng = getArguments().getFloat("lngKey");
         magnitude = getArguments().getFloat("magKey");
-        place = getArguments().getString("placeKey");
         date = getArguments().getString("dateKey");
         depth = getArguments().getFloat("depthKey");
     }
@@ -62,6 +61,7 @@ public class DetailedEarthquakeFragment extends Fragment {
 
         magTextView.setText("Richter Scale: " + Float.toString(magnitude));
 
+        //parse date and time from date field in earthquake object
         int dateTextIndex = date.indexOf(" ");
         String dateText = date.substring(0, dateTextIndex);
         String timeText = date.substring(dateTextIndex + 1);
@@ -74,11 +74,11 @@ public class DetailedEarthquakeFragment extends Fragment {
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
+        //add marker to our map and pan to it
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 Marker earthquakeMarker;
-
                 earthquakeMarker = googleMap.addMarker(new MarkerOptions()
                         .position(new LatLng(lat, lng))
                         .title("Hello world"));
@@ -88,6 +88,8 @@ public class DetailedEarthquakeFragment extends Fragment {
 
         return rootView;
     }
+
+    //below lifecycles methods are needed for mapview to function
 
     @Override
     public void onResume() {

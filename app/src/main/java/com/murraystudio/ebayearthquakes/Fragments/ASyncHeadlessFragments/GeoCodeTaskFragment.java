@@ -1,4 +1,4 @@
-package com.murraystudio.ebayearthquakes.Fragments;
+package com.murraystudio.ebayearthquakes.Fragments.ASyncHeadlessFragments;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -11,11 +11,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * This Fragment manages a single background task and retains
- * itself across configuration changes.
+/*
+ * Author: Shamus Murray
+ *
+ * AsyncTask that that gets Geo-location based off
+ * the lat and long coordinates from the JSON file.
  */
-
 public class GeoCodeTaskFragment extends Fragment {
     /**
      * Callback interface through which the fragment will report the
@@ -102,13 +103,8 @@ public class GeoCodeTaskFragment extends Fragment {
             addresses = geocoder.getFromLocation(latDouble, lngDouble, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
 
             if(addresses.size() > 0) {
-                String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-                String city = addresses.get(0).getLocality();
-                String state = addresses.get(0).getAdminArea();
+                //return country name (if exists)
                 String country = addresses.get(0).getCountryName();
-                String postalCode = addresses.get(0).getPostalCode();
-                String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
-
                 return  country + " ;" + ID;
             }
             else {

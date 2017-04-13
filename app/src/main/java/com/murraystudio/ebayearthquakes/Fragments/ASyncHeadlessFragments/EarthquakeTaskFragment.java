@@ -1,4 +1,4 @@
-package com.murraystudio.ebayearthquakes.Fragments;
+package com.murraystudio.ebayearthquakes.Fragments.ASyncHeadlessFragments;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -13,11 +13,13 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-/**
- * This Fragment manages a single background task and retains
- * itself across configuration changes.
+/*
+ * Author: Shamus Murray
+ *
+ * Launches an AsyncTask attached to a headless fragment (so we have no issues
+ * with the task getting interrupted during an orientation change). This
+ * Async task downloads the Json from our earthquake API.
  */
-
 public class EarthquakeTaskFragment extends Fragment {
     /**
      * Callback interface through which the fragment will report the
@@ -30,6 +32,7 @@ public class EarthquakeTaskFragment extends Fragment {
     private AsyncTaskCallbacks mCallbacks;
     private EarthquakePullTask mTask;
 
+    //Earthquake JSON file URL
     private static final String JSON_URL = "http://api.geonames.org/earthquakesJSON?formatted=true&north=44.1&south=-9.9&east=-22.4&west=55.2&username=mkoppelman";
 
     /**

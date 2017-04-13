@@ -16,10 +16,11 @@ import java.util.ArrayList;
 
 import static com.murraystudio.ebayearthquakes.R.id.place;
 
-/**
- * Created by sushi_000 on 4/11/2017.
+/*
+ * Author: Shamus Murray
+ *
+ * Adapter for our listview that display Earthquake information
  */
-
 public class EarthquakeAdapter extends BaseAdapter {
 
     private Context mContext;
@@ -57,6 +58,7 @@ public class EarthquakeAdapter extends BaseAdapter {
             view = inflater.inflate(R.layout.earthquake_view, viewGroup, false);
         }
 
+        //make sure we have data to populate
         if(mDataSource.size() > 0) {
 
             TextView magnitudeText = (TextView) view.findViewById(R.id.Mag);
@@ -65,9 +67,11 @@ public class EarthquakeAdapter extends BaseAdapter {
             TextView placeText = (TextView) view.findViewById(place);
 
             magnitudeText.setText(Float.toString(mDataSource.get(i).getMagnitude()));
+            //if magnitude is over 8.0, color red to signify extra dangerous
             if(mDataSource.get(i).getMagnitude() >= 8.0){
-                magnitudeText.setTextColor(Color.RED);
+                magnitudeText.setTextColor(mContext.getResources().getColor(R.color.colorHighMagnitude));
             }
+            //otherwise color dark grey
             else{
                 magnitudeText.setTextColor(Color.DKGRAY);
             }
@@ -75,6 +79,7 @@ public class EarthquakeAdapter extends BaseAdapter {
             latLngText.setText(Float.toString(mDataSource.get(i).getLat()) + ", " + Float.toString(mDataSource.get(i).getLng()));
             dateText.setText(mDataSource.get(i).getDate());
 
+            //if our GeoCoder found a place, set it as place text.
             if(mDataSource.get(i).getPlace() != null){
                 placeText.setText(mDataSource.get(i).getPlace());
             }
