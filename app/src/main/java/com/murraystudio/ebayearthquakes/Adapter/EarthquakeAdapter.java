@@ -2,6 +2,7 @@ package com.murraystudio.ebayearthquakes.Adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,10 +61,17 @@ public class EarthquakeAdapter extends BaseAdapter {
 
             TextView magnitudeText = (TextView) view.findViewById(R.id.Mag);
             TextView latLngText = (TextView) view.findViewById(R.id.lat_long);
-            TextView dateText = (TextView) view.findViewById(R.id.date);
+            TextView dateText = (TextView) view.findViewById(R.id.time);
             TextView placeText = (TextView) view.findViewById(place);
 
             magnitudeText.setText(Float.toString(mDataSource.get(i).getMagnitude()));
+            if(mDataSource.get(i).getMagnitude() >= 8.0){
+                magnitudeText.setTextColor(Color.RED);
+            }
+            else{
+                magnitudeText.setTextColor(Color.DKGRAY);
+            }
+
             latLngText.setText(Float.toString(mDataSource.get(i).getLat()) + ", " + Float.toString(mDataSource.get(i).getLng()));
             dateText.setText(mDataSource.get(i).getDate());
 

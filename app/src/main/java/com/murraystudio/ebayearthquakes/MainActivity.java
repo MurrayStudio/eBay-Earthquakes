@@ -2,14 +2,11 @@ package com.murraystudio.ebayearthquakes;
 
 import android.app.FragmentManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
 
 import com.murraystudio.ebayearthquakes.Fragments.DetailedEarthquakeFragment;
 import com.murraystudio.ebayearthquakes.Fragments.EarthquakeListFragment;
@@ -34,6 +31,8 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
     private DetailedEarthquakeFragment mDetailedEarthquakeFragment;
     private EarthquakeListFragment mEarthquakeListFragment;
 
+    private CollapsingToolbarLayout collapsingToolbarLayout;
+
     private ArrayList<Earthquake> mDataSourceMainActivity;
 
 
@@ -45,14 +44,7 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
 
         mDataSourceMainActivity = new ArrayList<Earthquake>();
 
@@ -62,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
             float[] lngValues = savedInstanceState.getFloatArray("lngKey");
             String[] dateValues = savedInstanceState.getStringArray("dateKey");
             String[] placeValues = savedInstanceState.getStringArray("placeKey");
+            float[] depthValues = savedInstanceState.getFloatArray("depthKey");
             for(int i = 0; i < magValues.length; i++){
                 Earthquake earthquake = new Earthquake();
 
@@ -70,12 +63,12 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
                 earthquake.setLng(lngValues[i]);
                 earthquake.setLat(latValues[i]);
                 earthquake.setPlace(placeValues[i]);
+                earthquake.setdepth(depthValues[i]);
 
                 if(earthquake.getDate() != null) {
                     mDataSourceMainActivity.add(earthquake);
                 }
             }
-
 
         }
 
@@ -102,27 +95,6 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
@@ -131,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
         float[] lngValues = new float[mDataSourceMainActivity.size()];
         String[] dateValues = new String[mDataSourceMainActivity.size()];
         String[] placeValues = new String[mDataSourceMainActivity.size()];
+        float[] depthValues = new float[mDataSourceMainActivity.size()];
 
 
         for(int i = 0; i < mDataSourceMainActivity.size(); i++) {
@@ -139,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
             lngValues[i] = mDataSourceMainActivity.get(i).getLng();
             dateValues[i] = mDataSourceMainActivity.get(i).getDate();
             placeValues[i] = mDataSourceMainActivity.get(i).getPlace();
+            depthValues[i] = mDataSourceMainActivity.get(i).getdepth();
         }
 
         outState.putFloatArray("magKey", magValues);
@@ -146,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
         outState.putFloatArray("lngKey", lngValues);
         outState.putStringArray("dateKey", dateValues);
         outState.putStringArray("placeKey", placeValues);
+        outState.putFloatArray("depthKey", depthValues);
 
     }
 
@@ -231,8 +206,29 @@ public class MainActivity extends AppCompatActivity implements EarthquakeTaskFra
                 args.putFloat("magKey", mDataSourceMainActivity.get(position).getMagnitude());
                 args.putString("dateKey", mDataSourceMainActivity.get(position).getDate());
                 args.putString("placeKey", mDataSourceMainActivity.get(position).getPlace());
+                args.putFloat("depthKey", mDataSourceMainActivity.get(position).getdepth());
                 mDetailedEarthquakeFragment.setArguments(args);
 
-                fm.beginTransaction().replace(R.id.fragment_container, mDetailedEarthquakeFragment).addToBackStack(null).commit();
+                fm.beginTransaction()
+                        .setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out, android.R.animator.fade_in, android.R.animator.fade_out)
+                        .replace(R.id.fragment_container, mDetailedEarthquakeFragment).addToBackStack(null).commit();
+
+        if(mDataSourceMainActivity.get(position).getPlace() != null) {
+            collapsingToolbarLayout.setTitle(mDataSourceMainActivity.get(position).getPlace());
+        }
+        else{
+            collapsingToolbarLayout.setTitle("Unknown Location");
+        }
+
+        AppBarLayout mAppBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
+        mAppBarLayout.setExpanded(false);
+
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        collapsingToolbarLayout.setTitle("eBay Earthquakes");
+        super.onBackPressed();
     }
 }
